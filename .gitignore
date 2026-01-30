@@ -1,0 +1,10 @@
+/target
+.DS_Store
+.cursor
+
+
+# Documentation build artifacts
+docs-site/.astro/
+docs-site/dist/
+docs-site/node_modules/
+docs-site/.docs-temp/
