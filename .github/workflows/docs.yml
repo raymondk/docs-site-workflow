@@ -2,8 +2,11 @@ name: Documentation
 
 on:
   push:
+    tags:
+      - "v*"
     branches:
       - main
+      - "docs/v*"
     paths:
       - 'docs/**'
       - 'docs-site/**'
@@ -20,8 +23,6 @@ on:
 # Sets permissions of the GITHUB_TOKEN to allow deployment to GitHub Pages
 permissions:
   contents: write
-  pages: write
-  id-token: write
 
 # Allow only one concurrent deployment, skipping runs queued between the run in-progress and latest queued.
 # However, do NOT cancel in-progress runs as we want to allow these production deployments to complete.
@@ -99,3 +100,50 @@ jobs:
           github_token: ${{ secrets.GITHUB_TOKEN }}
           publish_dir: ./root
           keep_files: true  # if this is not set, we delete the full contents
+
+
+  publish-docs:
+    if: github.ref != 'refs/heads/main'  # We don't want this to run on main
+    runs-on: ubuntu-latest
+    steps:
+      - name: Checkout
+        uses: actions/checkout@08eba0b27e820071cde6df949e0beb9ba4906955 # v4.3.0
+
+      - name: Setup Node
+        uses: actions/setup-node@1a4442cacd436585916779262731d5b162bc6ec7 # v4.2.0
+        with:
+          node-version: '20'
+          cache: 'npm'
+          cache-dependency-path: docs-site/package-lock.json
+
+      - name: Install dependencies
+        working-directory: ./docs-site
+        run: npm ci
+
+      - name: Build documentation site
+        working-directory: ./docs-site
+        run: npm run build
+        env:
+          NODE_ENV: production
+
+      # Figure out the directory where we should publish the docs
+      - run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "DOCS_BASE=/${VERSION%.*}" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF}" == refs/heads/docs/v* ]]; then
+            VERSION=${GITHUB_REF#refs/heads/docs/v}
+            echo "DOCS_BASE=/${VERSION}" >> $GITHUB_ENV
+          else
+            echo "docs should only be published for a version tag or a docs branch"
+            echo "Invalid run for: ${GITHUB_REG}"
+            exit 1
+          fi
+
+      - uses: peaceiris/actions-gh-pages@v4
+        with:
+          github_token: ${{ secrets.GITHUB_TOKEN }}
+          publish_dir: ./docs-site/dist
+          destination_dir: ${{ env.DOCS_BASE }}
+
+
