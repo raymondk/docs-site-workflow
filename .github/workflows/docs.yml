@@ -120,25 +120,27 @@ jobs:
         working-directory: ./docs-site
         run: npm ci
 
+      # Figure out the directory where we should publish the docs
+      - run: |
+          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
+            VERSION=${GITHUB_REF#refs/tags/v}
+            echo "DOCS_VERSION=${VERSION%.*}" >> $GITHUB_ENV
+            echo "DOCS_BASE=./${VERSION%.*}" >> $GITHUB_ENV
+          elif [[ "${GITHUB_REF}" == refs/heads/docs/v* ]]; then
+            VERSION=${GITHUB_REF#refs/heads/docs/v}
+            echo "DOCS_VERSION=${VERSION%.*}" >> $GITHUB_ENV
+            echo "DOCS_BASE=./${VERSION}" >> $GITHUB_ENV
+          else
+            echo "docs should only be published for a version tag or a docs branch"
+            echo "Invalid run for: ${GITHUB_REF}"
+            exit 1
+          fi
+
       - name: Build documentation site
         working-directory: ./docs-site
         run: npm run build
         env:
           NODE_ENV: production
-
-      # Figure out the directory where we should publish the docs
-      - run: |
-          if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
-            VERSION=${GITHUB_REF#refs/tags/v}
-            echo "DOCS_BASE=./${VERSION%.*}" >> $GITHUB_ENV
-          elif [[ "${GITHUB_REF}" == refs/heads/docs/v* ]]; then
-            VERSION=${GITHUB_REF#refs/heads/docs/v}
-            echo "DOCS_BASE=./${VERSION}" >> $GITHUB_ENV
-          else
-            echo "docs should only be published for a version tag or a docs branch"
-            echo "Invalid run for: ${GITHUB_REG}"
-            exit 1
-          fi
 
       - uses: peaceiris/actions-gh-pages@v4
         with:

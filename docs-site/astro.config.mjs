@@ -5,7 +5,7 @@ import rehypeExternalLinks from 'rehype-external-links';
 // https://astro.build/config
 export default defineConfig({
   site: 'https://dfinity.github.io',
-  base: process.env.NODE_ENV === 'production' ? '/docs-site-workflow/' : '/',
+  base: process.env.NODE_ENV === 'production' ? `/docs-site-workflow/${process.env.DOCS_VERSION}/` : '/',
   markdown: {
     rehypePlugins: [
       // Open external links in new tab
