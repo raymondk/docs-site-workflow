@@ -72,7 +72,7 @@ jobs:
           <!doctype html>
           <html>
             <head>
-              <meta http-equiv="refresh" content="0; url=./0.2.0/" />
+              <meta http-equiv="refresh" content="0; url=./0.2/" />
               <meta name="robots" content="noindex" />
             </head>
           </html>
@@ -86,8 +86,8 @@ jobs:
           cat > root/versions.json << 'EOF'
           {
             "versions": [
-              "0.2.0",
-              "0.1.0"
+              "0.2",
+              "0.1"
             ]
           }
           EOF
@@ -130,10 +130,10 @@ jobs:
       - run: |
           if [[ "${GITHUB_REF}" == refs/tags/v* ]]; then
             VERSION=${GITHUB_REF#refs/tags/v}
-            echo "DOCS_BASE=/${VERSION%.*}" >> $GITHUB_ENV
+            echo "DOCS_BASE=./${VERSION%.*}" >> $GITHUB_ENV
           elif [[ "${GITHUB_REF}" == refs/heads/docs/v* ]]; then
             VERSION=${GITHUB_REF#refs/heads/docs/v}
-            echo "DOCS_BASE=/${VERSION}" >> $GITHUB_ENV
+            echo "DOCS_BASE=./${VERSION}" >> $GITHUB_ENV
           else
             echo "docs should only be published for a version tag or a docs branch"
             echo "Invalid run for: ${GITHUB_REG}"
