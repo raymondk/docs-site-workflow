@@ -1,6 +1,6 @@
 Build and deploy applications on the [Internet Computer](https://internetcomputer.org).
 
-## Start Here
+## Start Here (v0.2.0)
 
 - **[Quickstart](quickstart.md)** — Deploy a full-stack app in under 5 minutes
 - **[Tutorial](tutorial.md)** — Deploy your first app step by step
